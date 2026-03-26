@@ -384,11 +384,11 @@
   }
 
   .oracle-title-pre {
-    font-size: 3.5px;
+    font-size: 2.75px;
   }
 
   .oracle-subtitle {
-    font-size: 0.68rem;
+    font-size: 0.5rem;
     line-height: 1.45;
   }
 
@@ -416,7 +416,7 @@
   .oracle-bubble,
   .oracle-loading,
   .oracle-message {
-    font-size: 0.92rem;
+    font-size: 0.8rem;
   }
 
   #oracle-form textarea {
@@ -443,7 +443,7 @@
   .oracle-composer-note {
     width: 100%;
     max-width: none;
-    font-size: 0.55rem;
+    font-size: 0.4rem;
     letter-spacing: 0.14em;
     text-align: center;
     line-height: 1.35;
@@ -464,6 +464,7 @@
   }
 
   .oracle-background-art {
+    top: -1rem;
     font-size: 6px;
   }
 
