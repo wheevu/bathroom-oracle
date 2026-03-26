@@ -1,0 +1,477 @@
+@import "tailwindcss" source(none);
+@source "../css";
+@source "../js";
+@source "../../lib/bathroom_oracle_web";
+
+@plugin "../vendor/heroicons";
+
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
+
+:root {
+  --bg: #07050b;
+  --bg-elevated: rgba(16, 12, 24, 0.92);
+  --surface: rgba(18, 13, 27, 0.76);
+  --surface-strong: rgba(27, 20, 40, 0.94);
+  --composer: rgba(10, 8, 15, 0.94);
+  --line: rgba(146, 109, 255, 0.2);
+  --line-strong: rgba(176, 144, 255, 0.42);
+  --text: #f3edff;
+  --muted: #b6aaca;
+  --accent: #926dff;
+  --accent-soft: #d7c8ff;
+  --danger: #ff85bf;
+  --composer-height: 15rem;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top, rgba(146, 109, 255, 0.18), transparent 42%),
+      radial-gradient(circle at bottom, rgba(89, 45, 171, 0.16), transparent 40%),
+      linear-gradient(180deg, #09070d 0%, #06040a 100%);
+    color: var(--text);
+    font-family: "Iosevka", "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  }
+
+  ::selection {
+    background: rgba(146, 109, 255, 0.34);
+    color: var(--text);
+  }
+
+  * {
+    scrollbar-color: rgba(146, 109, 255, 0.4) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0.7rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 0;
+    background: rgba(146, 109, 255, 0.28);
+    background-clip: padding-box;
+  }
+
+  button,
+  input,
+  textarea,
+  form {
+    border-radius: 0 !important;
+  }
+}
+
+@keyframes oracle-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes oracle-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes oracle-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes oracle-background-wave {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+
+  12% {
+    opacity: 0.018;
+  }
+
+  50% {
+    clip-path: inset(0 28% 0 34%);
+    opacity: 0.04;
+    transform: translate3d(0, -1px, 0);
+  }
+
+  88% {
+    opacity: 0.018;
+  }
+
+  100% {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fieldset {
+  margin-bottom: 0;
+}
+
+.label {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+
+.text-error {
+  color: var(--danger);
+}
+
+.oracle-thread::before {
+  content: "";
+  position: absolute;
+  left: 0.45rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(146, 109, 255, 0.3), transparent);
+}
+
+.oracle-message {
+  position: relative;
+}
+
+.oracle-message::before {
+  content: "";
+  position: absolute;
+  left: -1.05rem;
+  top: 1rem;
+  height: 0.5rem;
+  width: 0.5rem;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  box-shadow: 0 0 22px rgba(146, 109, 255, 0.22);
+}
+
+.oracle-message[data-role="user"]::before {
+  border-color: rgba(214, 204, 255, 0.24);
+  box-shadow: none;
+}
+
+.oracle-bubble,
+.ritual-panel,
+.oracle-loading {
+  border-radius: 0 !important;
+}
+
+.oracle-reveal {
+  opacity: 0;
+  animation: oracle-float-in 0.5s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.oracle-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.oracle-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(146, 109, 255, 0.08), transparent);
+  animation: oracle-sheen 1.8s linear infinite;
+  pointer-events: none;
+}
+
+.oracle-title-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-inline: max(1rem, calc((100vw - min(100%, 72rem)) / 2));
+  color: var(--accent-soft);
+}
+
+.oracle-title-pre {
+  margin: 0;
+  flex: none;
+  width: max-content;
+  max-width: none;
+  white-space: pre;
+  overflow: visible;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0;
+  word-spacing: 0;
+  text-align: left;
+  text-rendering: optimizeSpeed;
+  text-shadow: none;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.oracle-background-art-wrap {
+  position: absolute;
+  top: 16rem;
+  right: 5rem;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  width: max-content;
+}
+
+.oracle-background-art {
+  top: -25px;
+  margin: 0;
+  white-space: pre;
+  color: var(--accent-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 7px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  word-spacing: 0;
+  text-align: left;
+  text-shadow: none;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.oracle-background-art--base {
+  position: relative;
+  opacity: 0.12;
+}
+
+.oracle-background-art--wave {
+  position: absolute;
+  inset: 0 auto auto 0;
+  opacity: 0;
+  color: #f0e4ff;
+  animation: oracle-background-wave 28s linear infinite;
+  will-change: clip-path, opacity, transform;
+}
+
+.oracle-thinking-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 1.5rem;
+}
+
+.oracle-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.oracle-dots span {
+  height: 0.32rem;
+  width: 0.32rem;
+  background: var(--accent-soft);
+  animation: oracle-dot 1.15s ease-in-out infinite;
+}
+
+.oracle-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.oracle-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.oracle-dots--dark span {
+  background: rgba(8, 6, 12, 0.9);
+}
+
+.ritual-panel {
+  box-shadow: 0 -18px 60px rgba(5, 4, 10, 0.66);
+}
+
+@media (min-width: 901px) {
+  .oracle-background-art-wrap {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 1200px) {
+  .oracle-title-pre {
+    font-size: 5px;
+  }
+
+  .oracle-background-art-wrap {
+    right: -18rem;
+    top: 15rem;
+  }
+
+  .oracle-background-art {
+    font-size: 7px;
+  }
+
+  .oracle-background-art--base {
+    opacity: 0.07;
+  }
+}
+
+@media (max-width: 900px) {
+  .oracle-title-pre {
+    font-size: 6px;
+  }
+
+  .oracle-background-art-wrap {
+    right: -24rem;
+    top: 11rem;
+  }
+
+  .oracle-background-art {
+    font-size: 6px;
+  }
+
+  .oracle-background-art--base {
+    opacity: 0.055;
+  }
+}
+
+@media (max-width: 700px) {
+  .oracle-hero {
+    margin-bottom: 1.25rem;
+    row-gap: 0.7rem;
+    padding-top: 1.5rem;
+  }
+
+  .oracle-title-rail {
+    padding-inline: 0.75rem;
+  }
+
+  .oracle-title-pre {
+    font-size: 3.5px;
+  }
+
+  .oracle-subtitle {
+    font-size: 0.68rem;
+    line-height: 1.45;
+  }
+
+  .oracle-thread {
+    row-gap: 1.1rem;
+    padding-left: 1rem;
+  }
+
+  .oracle-message::before {
+    left: -0.75rem;
+    top: 0.8rem;
+  }
+
+  .oracle-empty-state,
+  .oracle-bubble,
+  .oracle-loading,
+  .oracle-loading p,
+  .oracle-loading div,
+  .oracle-message [class*="text-sm"],
+  .oracle-message p:not(.oracle-title-pre) {
+    line-height: 1.45;
+  }
+
+  .oracle-empty-state,
+  .oracle-bubble,
+  .oracle-loading,
+  .oracle-message {
+    font-size: 0.92rem;
+  }
+
+  #oracle-form textarea {
+    min-height: 7rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+
+  #oracle-form .label,
+  #oracle-thread-empty > p:first-child,
+  .oracle-bubble > p:first-child {
+    font-size: 0.62rem;
+    letter-spacing: 0.24em;
+  }
+
+  .oracle-composer-actions {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .oracle-composer-note {
+    width: 100%;
+    max-width: none;
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .oracle-consult-button {
+    align-self: center;
+  }
+
+  .oracle-background-art-wrap {
+    display: block;
+    left: 50%;
+    right: auto;
+    top: 15.5rem;
+    transform: translateX(-50%);
+    width: max-content;
+    overflow: hidden;
+  }
+
+  .oracle-background-art {
+    font-size: 6px;
+  }
+
+  .oracle-background-art--base {
+    opacity: 0.13;
+  }
+
+  .oracle-background-art--wave {
+    opacity: 0;
+  }
+}

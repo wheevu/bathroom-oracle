@@ -1,0 +1,10 @@
+_build/
+deps/
+.git/
+.gitignore
+README.md
+assets/node_modules/
+cover/
+doc/
+tmp/
+oracle-*.png

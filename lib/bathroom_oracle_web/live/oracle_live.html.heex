@@ -1,0 +1,173 @@
+<Layouts.app flash={@flash}>
+  <div class="relative min-h-screen">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(146,109,255,0.16),transparent_55%)]">
+    </div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-96 bg-[radial-gradient(circle_at_bottom,rgba(95,42,168,0.18),transparent_58%)]">
+    </div>
+    <div class="oracle-background-art-wrap" aria-hidden="true">
+      <pre class="oracle-background-art oracle-background-art--base">{@oracle_background_art}</pre>
+      <pre class="oracle-background-art oracle-background-art--wave">{@oracle_background_art}</pre>
+    </div>
+
+    <header class="oracle-hero relative z-10 mb-8 space-y-4 px-4 pt-8 text-center sm:mb-10 sm:px-6 sm:pt-12">
+      <p class="text-[0.68rem] uppercase tracking-[0.34em] text-[var(--accent-soft)]/85">
+        IN MATTERS OF DIGNITY AND MISREAD OMENS
+      </p>
+      <h1 class="sr-only">The Bathroom Oracle Speaks</h1>
+      <div class="oracle-title-rail" aria-hidden="true">
+        <pre class="oracle-title-pre">{@oracle_title_art}</pre>
+      </div>
+      <p class="oracle-subtitle mx-auto max-w-3xl text-xs leading-7 text-[var(--muted)] sm:text-sm">
+        Ask one unwise question. Receive judgement from a council of damp authorities.
+      </p>
+    </header>
+
+    <div
+      class="relative mx-auto flex min-h-[calc(100vh-15rem)] w-full max-w-3xl flex-col px-4 sm:px-6"
+      style="padding-bottom: calc(var(--composer-height, 15rem) + 2rem)"
+    >
+      <section
+        id="oracle-thread"
+        phx-update="stream"
+        class="oracle-thread relative flex-1 space-y-6 pl-6 sm:space-y-8"
+      >
+        <article
+          id="oracle-thread-empty"
+          class="oracle-empty-state hidden only:block max-w-2xl border-l border-[var(--line)] pl-4 text-sm leading-7 text-[var(--muted)] sm:pl-5"
+        >
+          <p class="text-[0.68rem] uppercase tracking-[0.28em] text-[var(--accent-soft)]/85">
+            Awaiting Petition
+          </p>
+          <p class="mt-2">
+            The chamber remains still. Present your questions plainly, let the plumbing decide how much dignity survives the verdict.
+          </p>
+        </article>
+
+        <article
+          :for={{id, message} <- @streams.messages}
+          id={id}
+          data-role={message.role}
+          class="oracle-message"
+        >
+          <%= if message.role == :user do %>
+            <div class="oracle-bubble ml-auto max-w-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm leading-7 text-[var(--text)] shadow-[0_14px_40px_rgba(5,4,10,0.28)] sm:px-5">
+              <p class="text-[0.68rem] uppercase tracking-[0.28em] text-[var(--muted)]">
+                Question
+              </p>
+              <p class="mt-2 whitespace-pre-wrap">{message.body}</p>
+            </div>
+          <% else %>
+            <%= case message.role do %>
+              <% :oracle_loading -> %>
+                <div class="oracle-loading max-w-2xl space-y-4 border-l border-[var(--line-strong)] pl-4 sm:pl-5">
+                  <p
+                    class="oracle-reveal text-[0.76rem] font-semibold uppercase tracking-[0.32em] text-[var(--accent-soft)]"
+                    style="--reveal-delay: 80ms"
+                  >
+                    Council
+                  </p>
+                  <p
+                    class="oracle-reveal text-sm leading-7 text-[var(--muted)]"
+                    style="--reveal-delay: 150ms"
+                  >
+                    {message.loading_copy}
+                  </p>
+                  <div class="space-y-2 text-sm text-[var(--muted)]/85">
+                    <div class="oracle-thinking-line oracle-reveal" style="--reveal-delay: 220ms">
+                      <span>Measuring steam density</span>
+                      <span class="oracle-dots" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                      </span>
+                    </div>
+                    <div class="oracle-thinking-line oracle-reveal" style="--reveal-delay: 290ms">
+                      <span>Mirror collecting objections</span>
+                      <span class="oracle-dots" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                      </span>
+                    </div>
+                    <div class="oracle-thinking-line oracle-reveal" style="--reveal-delay: 360ms">
+                      <span>Reviewing towel alignment</span>
+                      <span class="oracle-dots" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              <% :oracle_error -> %>
+                <div class="max-w-2xl space-y-2 border-l border-[var(--danger)] pl-4 sm:pl-5">
+                  <p class="text-[0.76rem] font-semibold uppercase tracking-[0.32em] text-[var(--danger)]">
+                    Ritual Interrupted
+                  </p>
+                  <p class="text-sm leading-7 text-[var(--danger)]">{message.body}</p>
+                </div>
+              <% :oracle -> %>
+                <.oracle_response response={message.response} />
+            <% end %>
+          <% end %>
+        </article>
+      </section>
+    </div>
+
+    <div class="fixed inset-x-0 bottom-0 z-20 px-4 pb-4 sm:px-6 sm:pb-6">
+      <div class="mx-auto max-w-3xl">
+        <.form
+          for={@form}
+          id="oracle-form"
+          phx-hook="ComposerMeasure"
+          phx-change="validate"
+          phx-submit="consult"
+          class="ritual-panel border border-[var(--line)] bg-[var(--composer)]/95 p-3 backdrop-blur-sm sm:p-4"
+        >
+          <.input
+            field={@form[:question]}
+            type="textarea"
+            label="Question"
+            rows="3"
+            readonly={@consulting?}
+            phx-hook="RotatingPlaceholder"
+            data-placeholder-values={@placeholder_rotation_json}
+            placeholder="Should I quit my job and become mysterious?"
+            class="min-h-28 w-full resize-none border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm leading-7 text-[var(--text)] outline-none transition focus:border-[var(--line-strong)] focus:ring-0 read-only:opacity-75"
+          />
+
+          <p
+            :if={@question_error}
+            id="oracle-question-error"
+            class="mt-2 flex items-center gap-2 px-1 text-sm text-[var(--danger)]"
+          >
+            <.icon name="hero-exclamation-circle" class="size-4 shrink-0" />
+            {@question_error}
+          </p>
+
+          <div class="oracle-composer-actions mt-3 flex items-end justify-between gap-3 px-1">
+            <p class="oracle-composer-note max-w-md text-xs uppercase tracking-[0.22em] text-[var(--muted)] sm:text-[0.68rem]">
+              <%= if @consulting? do %>
+                The chamber is deliberating. The sink asked has requested silence.
+              <% else %>
+                This session leaves no record. The tiles confer, then forget you completely.
+              <% end %>
+            </p>
+
+            <button
+              id="consult-button"
+              type="submit"
+              disabled={@consulting?}
+              class="oracle-consult-button inline-flex shrink-0 items-center justify-center border border-[var(--line-strong)] bg-[var(--accent)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-black transition hover:bg-[var(--accent-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 disabled:cursor-wait disabled:opacity-80 sm:px-5"
+            >
+              <%= if @consulting? do %>
+                <span class="inline-flex items-center gap-2">
+                  Thinking
+                  <span class="oracle-dots oracle-dots--dark" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                  </span>
+                </span>
+              <% else %>
+                Consult the Oracle
+              <% end %>
+            </button>
+          </div>
+        </.form>
+      </div>
+    </div>
+  </div>
+</Layouts.app>
