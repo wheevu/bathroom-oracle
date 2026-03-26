@@ -53,6 +53,7 @@ WORKDIR /app
 RUN chown nobody /app
 
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/bathroom_oracle ./
+RUN chmod +x /app/bin/server
 
 USER nobody
 
